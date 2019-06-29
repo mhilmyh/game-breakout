@@ -1,0 +1,17 @@
+* 
+{
+    padding: 0px;
+    margin: 0px;
+}
+canvas 
+{
+    margin: auto;
+    display: block;
+    background: rgb(240, 240, 240);
+}
+footer
+{
+    display: none;
+    text-align: center;
+    font-size: 10px;
+}
