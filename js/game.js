@@ -11,10 +11,12 @@ function canvasResize() {
 
 var context = canvas.getContext("2d");
 
+// ingame variable
 var score = 0;
+var lives = 3;
 
 // ball information
-var speedBall = 2;
+var speedBall = 4;
 var x = canvas.width/2;
 var y = canvas.height-32;
 var dx = speedBall;
@@ -23,7 +25,7 @@ var ballRadius = 8;
 
 // paddle information
 var paddleHeight = 8;
-var paddleWidth = 48;
+var paddleWidth = 96;
 var paddleX = (canvas.width-paddleWidth)/2;
 
 // button information
@@ -49,46 +51,9 @@ for(var r = 0; r<brickRowCount; r++) {
     }
 }
 
-function draw() {
-    // reset canvas
-    context.clearRect(0,0,canvas.width,canvas.height);
-
-    drawScore();
-    drawBall();
-    drawPaddle();
-    drawBricks();
-    cekHit();
-
-    // saat tabrakan dengan dinding
-    if( x + dx < ballRadius || x + dx > canvas.width - ballRadius) {
-        dx = -dx;
-    }
-    if( y + dy < ballRadius ) {
-        dy = -dy;
-    }
-    else if( y + dy > canvas.height - ballRadius) {
-        if( paddleX < x && paddleX + paddleWidth > x) {
-            dy = -dy;
-        }
-        else {
-            alert("Selesai");
-            document.location.reload(); // muat ulang
-            clearInterval(interval);    // untuk chrome
-        }
-    }
-
-    // tombol
-    if(kananPress && paddleX < canvas.width-paddleWidth) {
-        paddleX += 4;
-    }
-    else if (kiriPress && paddleX > 0) {
-        paddleX -= 4;
-    }
-
-    // pergerakan bola
-    x += dx;
-    y += dy;
-}
+// handle button
+document.addEventListener("keydown", keyDownHandler , false);
+document.addEventListener("keyup", keyUpHandler , false);
 
 function drawBall() {
     // gambar bola
@@ -135,6 +100,12 @@ function drawScore() {
     context.fillText("Score: "+score, 8, 20);
 }
 
+function drawLives() {
+    context.font = "16px Arial";
+    context.fillStyle = "#6dc43a";
+    context.fillText("Lives: " + lives, canvas.width-65, 20);
+}
+
 function cekHit() {
     // saat bola menyentuh bricks
     for(var c = 0; c<brickColumnCount; c++) {
@@ -149,7 +120,7 @@ function cekHit() {
                     if(score == brickRowCount * brickColumnCount ) {
                         alert("Selamat, anda menang !");
                         document.location.reload();         // muat ulang
-                        clearInterval(interval);            // untuk browser chrome
+                        //clearInterval(interval);            // untuk browser chrome
                     }
                 }
             }
@@ -175,9 +146,63 @@ function keyUpHandler(k) {
     }
 }
 
-// handle button
-document.addEventListener("keydown", keyDownHandler , false);
-document.addEventListener("keyup", keyUpHandler , false);
+function draw() {
+    // reset canvas
+    context.clearRect(0,0,canvas.width,canvas.height);
+
+    drawScore();
+    drawBall();
+    drawPaddle();
+    drawBricks();
+    drawLives();
+    cekHit();
+
+    // saat tabrakan dengan dinding
+    if( x + dx < ballRadius || x + dx > canvas.width - ballRadius) {
+        dx = -dx;
+    }
+    if( y + dy < ballRadius ) {
+        dy = -dy;
+    }
+    else if( y + dy > canvas.height - ballRadius) {
+        if( paddleX < x && paddleX + paddleWidth > x) {
+            dy = -dy;
+        }
+        else {
+            lives--;
+
+            if(!lives) {
+                alert("Selesai. Anda belum berhasil menang.");
+                document.location.reload(); // muat ulang
+                //clearInterval(interval);    // untuk browser chrome
+            } else {
+                speedBall = 4;
+                x = canvas.width/2;
+                y = canvas.height-32;
+                dx = speedBall;
+                dy = -speedBall;
+                paddleX = (canvas.width-paddleWidth)/2;
+            }
+        }
+    }
+
+    // tombol
+    if(kananPress && paddleX < canvas.width-paddleWidth) {
+        paddleX += 8;
+    }
+    else if (kiriPress && paddleX > 0) {
+        paddleX -= 8;
+    }
+
+    // pergerakan bola
+    x += dx;
+    y += dy;
+    console.log("("+x+","+y+")");
+
+    // panggil draw lagi
+    requestAnimationFrame(draw);
+}
 
 // menggambar sprite setiap 10 millisecond
-var interval = setInterval(draw, 10);
+//var interval = setInterval(draw, 10);
+draw();
